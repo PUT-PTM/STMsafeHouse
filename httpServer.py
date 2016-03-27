@@ -2,10 +2,10 @@
 #coding=utf-8
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from os import curdir, sep
-import cgi
 import os
 import subprocess
 
+os.system("php -S 127.0.0.1:8080")
 def php(script_path):
     p = subprocess.Popen(['php', script_path] )
 
@@ -22,16 +22,18 @@ class myHandler(BaseHTTPRequestHandler):
 		self.end_headers()
 	
 	def do_POST(self):
-		php("user.php")
+		
 		print "POST METHOD"
 		self._set_headers()
+		#os.system("php -f info.php")
 		self.wfile.write("""
-		<form name="main" action="index.html" method="post" accept-charset="utf-8">  
-    		<button type= submit> Powrót na główną stronę </button>  
+		<form name="main" method="post" accept-charset="utf-8">  
+    		<input type="text" name="login" required> 
+    		<input type="password" name="password" placeholder="password" required>
+    		 <button onclick="myFunction()">Zaloguj</button> 
 			</form>
 		
 		""")
-
 	
 	#Handler for the GET requests
 	def do_GET(self):

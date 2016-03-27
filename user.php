@@ -1,5 +1,11 @@
-<?php
+header("Content-Type: text/plain")
 
-$password = (isset($_POST['password']) ? $_POST['password'] : null);
-echo $password;
-?>
+<html>
+<html>
+<body>
+
+Welcome <?php echo $_POST["login"]; ?><br>
+Your password is: <?php echo $_POST["password"]; ?>
+
+</body>
+</html>
