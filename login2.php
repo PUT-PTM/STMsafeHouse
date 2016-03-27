@@ -1,3 +1,9 @@
+<?php
+   $login = $_POST["login"];
+   $password = $_POST["password"];
+	
+?>
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -23,10 +29,10 @@
 			
 			<div id="tekst">
 		<div>
-		<form name="login" action="user.php" method="post" accept-charset="utf-8">  
+		<form name="login" action="welcome.php" method="post" accept-charset="utf-8">  
     		<ul>  
         		<li><label for="username">Username</label>  
-        		<input type="text" id=login name="login" placeholder="Username" required></li>  
+        		<input type="text" id=username name="username" placeholder="Username" required></li>  
         		<li><label for="password">Password</label>  
         		<input type="password" name="password" placeholder="password" required></li>  
         		<li>  
