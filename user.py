@@ -1,18 +1,31 @@
-import sys, json
+# -*- coding: utf-8 -*-
+import sys
+import sqlite3
 
-# Load the data that PHP sent us
-try:
-    data = json.loads(sys.argv[1])
-    data2 = eval(sys.argv[1])[0]
+#login = sys.argv[1]
+#password = sys.argv[2]
 
-    #print data
-except:
-    print "ERROR"
-    sys.exit(1)
+# utworzenie połączenia z bazą przechowywaną na dysku
+# lub w pamięci (':memory:')
+con = sqlite3.connect('base.db')
 
-# Generate some data to send to PHP
-result = {'status': 'Yes!'}
+# dostęp do kolumn przez indeksy i przez nazwy
+con.row_factory = sqlite3.Row
 
-# Send it to stdout (to PHP)
-print json.dumps(result)
-print json.dumps(data2)
+# utworzenie obiektu kursora
+cur = con.cursor()
+
+# pobieranie danych z bazy
+def czytajdane():
+    """Funkcja pobiera i wyświetla dane z bazy."""
+    cur.execute(
+        """
+        SELECT * FROM uzytkownicy
+        """)
+    uczniowie = cur.fetchall()
+    print uczniowie
+
+czytajdane()
+
+a = cur.execute('SELECT haslo FROM uzytkownicy WHERE login = ?', ('user',))
+con.close()
