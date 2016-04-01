@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" type="text/css" href="/style.css">
 	<link rel=" icon" type="image/ico" href="/gfx/favicon.ico">
-
-	<title>Poprawnie zalogowany użytkownik !</title>	
+	
+	<title>Zmiana hasła</title>	
 </head>
 <body>
        <center>
@@ -12,21 +13,23 @@
         </center>
 <div id="wrapper">
 	<div id="top"><h1>STM SAFE HOUSE</h1></div>
+	<div id="top"><h2>Panel Użyszkodnika systemu</h2></div>
 	<div id="content">		
-	<h5>Witaj w systemie <?php echo $_POST['username']; ?> !<h5/>	
+	
+	
 		<div id="c1">
 			
 			<div id="tekst">
-		<div>	
-		<h5>Witaj wybierz akcję którą chcesz wykonać:</h5>	
-		<form  method="post" action="index.php">
-  			<input type="submit" value="Powrót na stronę główną systemu">
-		</form>		
-		<form  method="post" action="hasloUser.php">
-  			<input type="submit" value="Zmiana hasła">
-		</form>		
+		<div>
+		<form name="newPassword" action="newPassword.php" method="post" accept-charset="utf-8">  
+    		<ul>   
+        		<li><label for="newPassword">Nowe Hasło</label>  
+        		<input type="newPassword" name="newPassword" placeholder="New Password" required></li>  
+        		<li>  
+        		<input type="submit" value="Zmień hasło"></li>
+        </form>
+    			</ul>  	
 		<p>Uwaga nieprzestrzeganie polityki bezpieczeństwa grozi usunięciem użytkownika z systemu!</p>
-		
 		</div>
          <p>			
 		</p></div>

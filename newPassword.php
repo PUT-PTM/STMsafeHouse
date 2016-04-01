@@ -1,10 +1,18 @@
+<?php
+   $newPassword = $_POST["newPassword"];
+	
+	$command = 'python newPassword.py ' . $newPassword;
+	$output = passthru($command);
+	
+?>
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" type="text/css" href="/style.css">
 	<link rel=" icon" type="image/ico" href="/gfx/favicon.ico">
-
-	<title>Poprawnie zalogowany użytkownik !</title>	
+	
+	<title>Zmiana hasła</title>	
 </head>
 <body>
        <center>
@@ -12,21 +20,20 @@
         </center>
 <div id="wrapper">
 	<div id="top"><h1>STM SAFE HOUSE</h1></div>
+	<div id="top"><h2>Panel Użyszkodnika systemu</h2></div>
 	<div id="content">		
-	<h5>Witaj w systemie <?php echo $_POST['username']; ?> !<h5/>	
+	
+	
 		<div id="c1">
 			
 			<div id="tekst">
-		<div>	
-		<h5>Witaj wybierz akcję którą chcesz wykonać:</h5>	
-		<form  method="post" action="index.php">
-  			<input type="submit" value="Powrót na stronę główną systemu">
-		</form>		
-		<form  method="post" action="hasloUser.php">
-  			<input type="submit" value="Zmiana hasła">
-		</form>		
+		<div>
+		<form name="newPassword" action="index.html" method="post" accept-charset="utf-8">  
+    		<h1> Poprawnie zmieniono hasło</h1>
+        		<input type="submit" value="Powrót na główną"></li>
+        </form>
+    			</ul>  	
 		<p>Uwaga nieprzestrzeganie polityki bezpieczeństwa grozi usunięciem użytkownika z systemu!</p>
-		
 		</div>
          <p>			
 		</p></div>
