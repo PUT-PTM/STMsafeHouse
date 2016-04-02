@@ -3,12 +3,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" type="text/css" href="/style.css">
-	<link rel=" icon" type="image/ico" href="/gfx/favicon.ico">
+	<link rel=" icon" type="image/ico" href="favicon.ico">
 	
-	<script type="text/javascript" src="Bandpass%20Python_pliki/jquery_002.js"></script>
-    <script type="text/javascript" src="Bandpass%20Python_pliki/jquery.js"></script>
-    <script type="text/javascript">$.SyntaxHighlighter.init();</script>
-	<title>Bandpass Python</title>	
+	<title>STM Safe House</title>	
 </head>
 <body>
        <center>
@@ -32,7 +29,11 @@
         		<input type="password" name="password" placeholder="password" required></li>  
         		<li>  
         		<input type="submit" value="Login"></li>  
-    			</ul>  	
+    			</ul>
+    	</form>
+      <form  method="post" action="index.html">
+  			<input type="submit" value="Powrót na stronę główną systemu">
+		</form>
 		<p>Uwaga nieprzestrzeganie polityki bezpieczeństwa grozi usunięciem użytkownika z systemu!</p>
 		</div>
          <p>			
@@ -40,12 +41,13 @@
 	</div>
 	</div>
 	<div id="footer">
-		<div id="copyright"> <a href="http://www.fizyka.umk.pl/%7Egniewko/python/bandpass/filtr_pasmowy.py">skrypt♥</a> </div>
-		<div id="footermenu"><a href="http://fizyka.umk.pl/%7Egniewko/python/bandpass/index.html">Home</a>|<a href="http://www.fizyka.umk.pl/%7Egniewko/python.html">Python WFAiIS</a>|<a href="https://www.youtube.com/watch?v=zKKGA30bHG0">FFT in 6 min</a></div>
+	<div id="copyright"> <a href="https://github.com/PUT-PTM/STMsafeHouse">projekt♥</a> </div>
+		<div id="footermenu"><a href="http://www2.st.com/content/st_com/en.html">STM</a>|<a href="http://www.put.poznan.pl/">Politechnika Poznańska</a></div>
+		
 		<div class="lewy"></div>
 		<div class="prawy"></div>
 		
 	</div>
 </div>
-
-<script id="script-httpbaluptongithubcomjquerysyntaxhighlighterprettifyprettifyminjs" src="Bandpass%20Python_pliki/prettify.js" type="text/javascript"></script><link id="stylesheet-httpbaluptongithubcomjquerysyntaxhighlighterprettifyprettifymincss" href="Bandpass%20Python_pliki/prettify.css" media="screen" rel="stylesheet" type="text/css"><link id="stylesheet-httpbaluptongithubcomjquerysyntaxhighlighterstylesstylemincss" href="Bandpass%20Python_pliki/style_002.css" media="screen" rel="stylesheet" type="text/css"><link id="stylesheet-httpbaluptongithubcomjquerysyntaxhighlighterstylesthemebaluptonmincss" href="Bandpass%20Python_pliki/theme-balupton.css" media="screen" rel="stylesheet" type="text/css"></body></html>
+</body>
+</html>
