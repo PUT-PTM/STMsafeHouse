@@ -4,6 +4,8 @@
 #include "stm32f4xx_rcc.h"
 #include "stdint.h"
 
+#define lcd_4bit_mode
+
 #define _RS GPIOC, GPIO_Pin_0
 #define _RW GPIOC, GPIO_Pin_1
 #define _E GPIOC, GPIO_Pin_2
@@ -19,6 +21,10 @@
 //for(long i=0;i<100000000;i++); //7.15s
 
 void lcd_cmd(uint8_t cmd, uint8_t RS) {
+	#ifdef lcd_4bit_mode
+	lcd_cmd4(cmd,RS);
+	lcd_cmd4(cmd<<4,RS);
+	#else
 	GPIO_WriteBit(_RS, RS);
 	GPIO_WriteBit(_DB7, cmd&0b10000000);
 	GPIO_WriteBit(_DB6, cmd&0b01000000);
@@ -28,6 +34,18 @@ void lcd_cmd(uint8_t cmd, uint8_t RS) {
 	GPIO_WriteBit(_DB2, cmd&0b00000100);
 	GPIO_WriteBit(_DB1, cmd&0b00000010);
 	GPIO_WriteBit(_DB0, cmd&0b00000001);
+	GPIO_ResetBits(_E);
+	for(int i=0;i<50000;i++);
+	GPIO_SetBits(_E);
+	#endif
+}
+
+void lcd_cmd4(uint8_t cmd4, uint8_t RS) {
+	GPIO_WriteBit(_RS, RS);
+	GPIO_WriteBit(_DB7, cmd&0b10000000);
+	GPIO_WriteBit(_DB6, cmd&0b01000000);
+	GPIO_WriteBit(_DB5, cmd&0b00100000);
+	GPIO_WriteBit(_DB4, cmd&0b00010000);
 	GPIO_ResetBits(_E);
 	for(int i=0;i<50000;i++);
 	GPIO_SetBits(_E);
@@ -49,12 +67,22 @@ void lcd_init() {
 	GPIO_SetBits(_E);
 
 	for(int i=0; i<5000000;i++);
+
+	#ifdef lcd_4bit_mode
+	lcd_cmd4(0b00110000,0);
+	for(int i=0; i<100000;i++);
+	lcd_cmd4(0b00110000,0);
+	for(int i=0; i<10000;i++);
+	lcd_cmd4(0b00110000,0);//3x Fset
+	lcd_cmd4(0b00100000,0);
+	#else
 	lcd_cmd(0b00110000,0);
 	for(int i=0; i<100000;i++);
 	lcd_cmd(0b00110000,0);
 	for(int i=0; i<10000;i++);
 	lcd_cmd(0b00110000,0);//3x Fset
 	for(int i=0; i<10000;i++);
+	#endif
 
 	lcd_functionSet(lcd_interface8bit|lcd_dspTwoRows|lcd_matrix5x7);
 	lcd_onOff(lcd_off|lcd_cursorOff|lcd_blinkingOff);
@@ -108,35 +136,6 @@ void lcd_cgramSet(uint8_t charAddr, uint8_t lineAddr) {
 
 void lcd_ddramSet(uint8_t addr) {
 	lcd_cmd(0x80|addr, 0);
-}
-
-uint8_t lcd_busyFlagRead() {
-	GPIOA->MODER &= GPIO_MODER_MODER6_0 | GPIO_MODER_MODER5_0 | GPIO_MODER_MODER4_0
-			| GPIO_MODER_MODER3_0 | GPIO_MODER_MODER2_0 | GPIO_MODER_MODER1_0 | GPIO_MODER_MODER0_0;
-	GPIOC->MODER &= GPIO_MODER_MODER3_0;
-
-	GPIO_SetBits(_RW);
-	GPIO_ResetBits(_E);
-
-	for(int i=0;i<50000;i++);
-	uint8_t retval = 0x00;
-	if (GPIO_ReadInputDataBit(_DB7)) retval |= 0b10000000;
-	if (GPIO_ReadInputDataBit(_DB6)) retval |= 0b01000000;
-	if (GPIO_ReadInputDataBit(_DB5)) retval |= 0b00100000;
-	if (GPIO_ReadInputDataBit(_DB4)) retval |= 0b00010000;
-	if (GPIO_ReadInputDataBit(_DB3)) retval |= 0b00001000;
-	if (GPIO_ReadInputDataBit(_DB2)) retval |= 0b00000100;
-	if (GPIO_ReadInputDataBit(_DB1)) retval |= 0b00000010;
-	if (GPIO_ReadInputDataBit(_DB0)) retval |= 0b00000001;
-
-	GPIOA->MODER |= GPIO_MODER_MODER6_0 | GPIO_MODER_MODER5_0 | GPIO_MODER_MODER4_0
-				| GPIO_MODER_MODER3_0 | GPIO_MODER_MODER2_0 | GPIO_MODER_MODER1_0 | GPIO_MODER_MODER0_0;
-	GPIOC->MODER |= GPIO_MODER_MODER3_0;
-
-	for(int i=0;i<10000;i++);
-	GPIO_ResetBits(_RW);
-	GPIO_SetBits(_E);
-	return retval;
 }
 
 void lcd_write(char* c) {
