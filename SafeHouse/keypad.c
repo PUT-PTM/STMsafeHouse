@@ -62,7 +62,7 @@ void kp_init() {
 }
 
 void EXTI15_10_IRQHandler(void) {
-	if (EXTI_GetITStatus(EXTI_Line15_10)!=RESET) {
+	if (EXTI_GetITStatus(EXTI_Line10)||EXTI_GetITStatus(EXTI_Line12)||EXTI_GetITStatus(EXTI_Line14)) {
 
 		GPIO_ResetBits(GPIOE, kp_pin_row_1|kp_pin_row_2|kp_pin_row_3|kp_pin_row_4);
 
@@ -96,8 +96,10 @@ void EXTI15_10_IRQHandler(void) {
 		GPIO_ResetBits(GPIOE, kp_pin_row_1|kp_pin_row_2|kp_pin_row_3|kp_pin_row_4);
 
 		GPIO_ToggleBits(GPIOD, GPIO_Pin_13);
-		lcd_cdm(kp_rawInput,1);
+		lcd_cmd(kp_rawInput,1);
 	}
 
-	EXTI_ClearITPendingBit(EXTI_Line15_10);
+	EXTI_ClearITPendingBit(EXTI_Line10);
+	EXTI_ClearITPendingBit(EXTI_Line12);
+	EXTI_ClearITPendingBit(EXTI_Line14);
 }

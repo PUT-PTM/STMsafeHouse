@@ -42,10 +42,10 @@ void lcd_cmd(uint8_t cmd, uint8_t RS) {
 
 void lcd_cmd4(uint8_t cmd4, uint8_t RS) {
 	GPIO_WriteBit(_RS, RS);
-	GPIO_WriteBit(_DB7, cmd&0b10000000);
-	GPIO_WriteBit(_DB6, cmd&0b01000000);
-	GPIO_WriteBit(_DB5, cmd&0b00100000);
-	GPIO_WriteBit(_DB4, cmd&0b00010000);
+	GPIO_WriteBit(_DB7, cmd4&0b10000000);
+	GPIO_WriteBit(_DB6, cmd4&0b01000000);
+	GPIO_WriteBit(_DB5, cmd4&0b00100000);
+	GPIO_WriteBit(_DB4, cmd4&0b00010000);
 	GPIO_ResetBits(_E);
 	for(int i=0;i<50000;i++);
 	GPIO_SetBits(_E);
