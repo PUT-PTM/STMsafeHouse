@@ -25,6 +25,7 @@ volatile uint8_t kp_rawInput;
 
 void kp_init() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = kp_pin_col_1|kp_pin_col_2|kp_pin_col_3;
@@ -93,8 +94,7 @@ void EXTI15_10_IRQHandler(void) {
 			}
 		}
 
-		GPIO_ResetBits(GPIOE, kp_pin_row_1|kp_pin_row_2|kp_pin_row_3|kp_pin_row_4);
-
+		GPIO_SetBits(GPIOE, kp_pin_row_1|kp_pin_row_2|kp_pin_row_3|kp_pin_row_4);
 		GPIO_ToggleBits(GPIOD, GPIO_Pin_13);
 		lcd_cmd(kp_rawInput,1);
 	}
