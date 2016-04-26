@@ -22,7 +22,7 @@ int main(void)
 	lcd_init();
 	lcd_write("Cokolwiek\nwyswietlacz");
 
-	while(1) {
+	wifi_init();
 
-	}
+
 }
