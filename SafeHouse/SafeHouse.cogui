@@ -338,6 +338,43 @@
 <item active="true" historyLabel="wifi.c" index="0">
 <position info="not_deleted" x="796" y="0"/>
 </item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="0" y="0"/>
+</item>
+<item historyLabel="Repository" index="18"/>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="175" y="0"/>
+</item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="2424" y="0"/>
+</item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="3780" y="0"/>
+</item>
+<item historyLabel="lcd.c" index="19">
+<position info="not_deleted" x="500" y="0"/>
+</item>
+<item historyLabel="lcd.c" index="19">
+<position info="not_deleted" x="3008" y="0"/>
+</item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="593" y="0"/>
+</item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="338" y="0"/>
+</item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="2338" y="0"/>
+</item>
+<item historyLabel="lcd.c" index="19">
+<position info="not_deleted" x="1297" y="0"/>
+</item>
+<item historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="3888" y="0"/>
+</item>
+<item active="true" historyLabel="keypad.c" index="17">
+<position info="not_deleted" x="3822" y="27"/>
+</item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
 </page>
