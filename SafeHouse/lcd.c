@@ -6,19 +6,18 @@
 
 #define lcd_4bit_mode
 
-#define _RS GPIOC, GPIO_Pin_0
-#define _RW GPIOC, GPIO_Pin_1
-#define _E GPIOC, GPIO_Pin_2
-#define _DB0 GPIOC, GPIO_Pin_3
-#define _DB1 GPIOA, GPIO_Pin_0
-#define _DB2 GPIOA, GPIO_Pin_1
-#define _DB3 GPIOA, GPIO_Pin_2
-#define _DB4 GPIOA, GPIO_Pin_3
-#define _DB5 GPIOA, GPIO_Pin_4
-#define _DB6 GPIOA, GPIO_Pin_5
-#define _DB7 GPIOA, GPIO_Pin_6
-
-//for(long i=0;i<100000000;i++); //7.15s
+//od lewego na wyswietlaczu
+#define _RS  GPIOE, GPIO_Pin_5
+#define _RW
+#define _E   GPIOE, GPIO_Pin_4
+#define _DB0
+#define _DB1
+#define _DB2
+#define _DB3
+#define _DB4 GPIOE, GPIO_Pin_3
+#define _DB5 GPIOE, GPIO_Pin_2
+#define _DB6 GPIOE, GPIO_Pin_1
+#define _DB7 GPIOE, GPIO_Pin_0
 
 void lcd_cmd(uint8_t cmd, uint8_t RS) {
 	#ifdef lcd_4bit_mode
@@ -52,21 +51,18 @@ void lcd_cmd4(uint8_t cmd4, uint8_t RS) {
 }
 
 void lcd_init() {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 
 	GPIO_InitTypeDef  GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1| GPIO_Pin_2| GPIO_Pin_3;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1| GPIO_Pin_2| GPIO_Pin_3| GPIO_Pin_4| GPIO_Pin_5| GPIO_Pin_6;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
 	GPIO_SetBits(_E);
 
-	for(int i=0; i<5000000;i++);
+	for(int i=0; i<5000000;i++);//czekaj na ustabilizowanie napiêcia
 
 	#ifdef lcd_4bit_mode
 	lcd_cmd4(0b00110000,0);
@@ -74,6 +70,7 @@ void lcd_init() {
 	lcd_cmd4(0b00110000,0);
 	for(int i=0; i<10000;i++);
 	lcd_cmd4(0b00110000,0);//3x Fset
+	for(int i=0; i<10000;i++);
 	lcd_cmd4(0b00100000,0);
 	#else
 	lcd_cmd(0b00110000,0);
@@ -84,11 +81,15 @@ void lcd_init() {
 	for(int i=0; i<10000;i++);
 	#endif
 
-	lcd_functionSet(lcd_interface8bit|lcd_dspTwoRows|lcd_matrix5x7);
-	lcd_onOff(lcd_off|lcd_cursorOff|lcd_blinkingOff);
+	lcd_functionSet(lcd_interface4bit|lcd_dspTwoRows|lcd_matrix5x8);
 	lcd_clear();
 	lcd_entryModeSet(lcd_dirRight|lcd_shiftCursor);
+	lcd_loadCustomChars();
 
+	lcd_onOff(lcd_on|lcd_cursorOff|lcd_blinkingOn);
+}
+
+void lcd_loadCustomChars() {
 	lcd_cgramSet(0,0);
 	uint8_t znak[8*8] = {
 		0,0,14,1,15,17,15,2,//¹
@@ -102,8 +103,6 @@ void lcd_init() {
 		4,0,31,2,4,8,31,0}; //¿
 	lcd_write_n(znak,8*8);
 	lcd_ddramSet(0);
-
-	lcd_onOff(lcd_on|lcd_cursorOff|lcd_blinkingOn);
 }
 
 void lcd_clear() {
@@ -140,11 +139,15 @@ void lcd_ddramSet(uint8_t addr) {
 
 void lcd_write(char* c) {
 	for(int i=0; c[i]; i++) {
+		if(i==16)lcd_ddramSet(0x40);
 		if(c[i]=='\n') lcd_ddramSet(0x40);
 		else lcd_cmd(c[i],1);
 	}
 }
 
 void lcd_write_n(uint8_t* c, int n) {
-	for(int i=0;i<n;i++) lcd_cmd(c[i],1);
+	for(int i=0;i<n;i++) {
+		if(i==16)lcd_ddramSet(0x40);
+		lcd_cmd(c[i],1);
+	}
 }

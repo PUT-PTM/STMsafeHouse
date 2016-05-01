@@ -3,6 +3,7 @@
 #include "stm32f4xx_rcc.h"
 #include "lcd.h"
 #include "keypad.h"
+#include "wifi.h"
 
 int main(void)
 {
@@ -20,9 +21,9 @@ int main(void)
 	kp_init();
 
 	lcd_init();
-	lcd_write("Cokolwiek\nwyswietlacz");
 
 	wifi_init();
 
+	for(;;){}//nie usuwaæ
 
 }

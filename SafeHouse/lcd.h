@@ -20,7 +20,7 @@ void lcd_init();
 #define lcd_dspOneRow 0x00
 #define lcd_dspTwoRows 0x08
 #define lcd_matrix5x10 0x04
-#define lcd_matrix5x7 0x00
+#define lcd_matrix5x8 0x00
 
 void lcd_clear();
 void lcd_cursorHome();
