@@ -82,9 +82,11 @@ void lcd_init() {
 	#endif
 
 	lcd_functionSet(lcd_interface4bit|lcd_dspTwoRows|lcd_matrix5x8);
-	lcd_clear();
+	lcd_onOff(lcd_off);
 	lcd_entryModeSet(lcd_dirRight|lcd_shiftCursor);
 	lcd_loadCustomChars();
+
+	lcd_clear();
 
 	lcd_onOff(lcd_on|lcd_cursorOff|lcd_blinkingOn);
 }

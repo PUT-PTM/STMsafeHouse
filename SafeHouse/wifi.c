@@ -79,6 +79,13 @@ void wifi_init(){
 
 	USART_put("ATE0\r\n");
 	USART_put("AT+CWMODE_DEF=1\r\n");
-	USART_put("AT+CWJAP_CUR=\"SSID\",\"HAS£O\"\r\n");
-	USART_put("AT+CIFSR\r\n");
+	USART_put("AT+CIPMUX=0\r\n"); // Tryb (nie)wielopo³¹czeniowy
+
+	USART_put("AT+CWJAP_DEF=\"Domcia-iPhone\",\"brzuszek\"\r\n"); // Po³¹czenie WiFi
+	USART_put("AT+CIFSR\r\n"); // adres ip
+	USART_put("AT+CIPSTART=\"TCP\",\"172.20.10.7\",8081\r\n"); // Nasz serwer
+//	USART_put("AT+CIPSTART=\"TCP\",\"216.58.194.142\",80\r\n"); // Google serwer
+	USART_put("AT+CIPSTATUS\r\n"); // Status TCP
+	USART_put("AT+CIPSENDEX=100\r\n"); // Wys³anie linijki ni¿ej, tylo chyba nie dzia³a
+	USART_put("cokolwiek");
 }

@@ -24,6 +24,8 @@ int main(void)
 
 	wifi_init();
 
-	for(;;){}//nie usuwaæ
+	for(;;){
+//		USART_put("AT+PING=\"172.20.10.7\"\r\n");
+	}//nie usuwaæ
 
 }
