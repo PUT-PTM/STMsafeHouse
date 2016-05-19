@@ -4,6 +4,7 @@
 #include "lcd.h"
 #include "keypad.h"
 #include "wifi.h"
+#include "md.h"
 
 int main(void)
 {
@@ -22,7 +23,9 @@ int main(void)
 
 	lcd_init();
 
-	wifi_init();
+	//wifi_init();
+
+	md_init();
 
 	for(;;){
 //		USART_put("AT+PING=\"172.20.10.7\"\r\n");
