@@ -3,10 +3,12 @@
 #include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
+#include "stm32f4xx_tim.h"
 
 void md_init(){
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=EXTI0_IRQn;
@@ -31,6 +33,24 @@ void md_init(){
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA,EXTI_PinSource0);
+
+
+
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+	TIM_TimeBaseStructure.TIM_Period = 10499;
+	TIM_TimeBaseStructure.TIM_Prescaler = 39999;//5s
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannel=TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0x00;
+	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
+	TIM_ITConfig(TIM2,TIM_IT_Update,ENABLE);
 }
 
 void EXTI0_IRQHandler(void)
@@ -38,6 +58,21 @@ void EXTI0_IRQHandler(void)
 	if(EXTI_GetITStatus(EXTI_Line0)!=RESET)
 	{
 		GPIO_ToggleBits(GPIOD, GPIO_Pin_15);
+		TIM_Cmd(TIM2, ENABLE);
+		lcd_cmd('!', 1);
 		EXTI_ClearITPendingBit(EXTI_Line0);
+	}
+}
+
+void TIM2_IRQHandler(void)
+{
+	if(TIM_GetITStatus(TIM2,TIM_IT_Update)!=RESET)
+	{
+		TIM_Cmd(TIM2, DISABLE);
+		GPIO_ToggleBits(GPIOD, GPIO_Pin_12);
+		lcd_write("Alarm");
+		TIM2->CNT=0;
+
+		TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
 	}
 }

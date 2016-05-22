@@ -106,7 +106,7 @@ void EXTI15_10_IRQHandler(void)
 
 		GPIO_SetBits(GPIOE, kp_pin_row_1|kp_pin_row_2|kp_pin_row_3|kp_pin_row_4);
 
-		GPIO_SetBits(GPIOD, GPIO_Pin_14);
+		GPIO_ToggleBits(GPIOD, GPIO_Pin_14);
 		EXTI_ClearITPendingBit(EXTI_Line11);
 		EXTI_ClearITPendingBit(EXTI_Line13);
 		EXTI_ClearITPendingBit(EXTI_Line15);
