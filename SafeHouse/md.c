@@ -2,8 +2,12 @@
 #include "misc.h"
 #include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_gpio.h"
+#include "stm32f4xx_rcc.h"
 
 void md_init(){
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=EXTI0_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x00;
@@ -24,16 +28,16 @@ void md_init(){
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	SYSCFG_EXTILineConfig(GPIOC,EXTI_PinSource0);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA,EXTI_PinSource0);
 }
 
 void EXTI0_IRQHandler(void)
 {
 	if(EXTI_GetITStatus(EXTI_Line0)!=RESET)
 	{
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_0);
+		GPIO_ToggleBits(GPIOD, GPIO_Pin_15);
 		EXTI_ClearITPendingBit(EXTI_Line0);
 	}
 }
