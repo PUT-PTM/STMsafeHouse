@@ -27,6 +27,8 @@ int main(void)
 
 	md_init();
 
+	lcd_changeScreen(lcd_scr_logo);
+
 	for(;;){
 //		USART_put("AT+PING=\"172.20.10.7\"\r\n");
 	}//nie usuwaæ

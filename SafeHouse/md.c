@@ -4,6 +4,9 @@
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_tim.h"
+#include "lcd.h"
+
+volatile int md_armed = 0;
 
 void md_init(){
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
@@ -37,8 +40,8 @@ void md_init(){
 
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	TIM_TimeBaseStructure.TIM_Period = 10499;
-	TIM_TimeBaseStructure.TIM_Prescaler = 39999;//5s
+	TIM_TimeBaseStructure.TIM_Period = 41999;
+	TIM_TimeBaseStructure.TIM_Prescaler = 39999;//20s
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
@@ -53,14 +56,29 @@ void md_init(){
 	TIM_ITConfig(TIM2,TIM_IT_Update,ENABLE);
 }
 
+void md_arm() {
+	md_armed = 1;
+}
+
+void md_disarm() {
+	md_armed = 0;
+	TIM_Cmd(TIM2, DISABLE);
+	TIM2->CNT=0;
+}
+
+int md_isArmed() {
+	return md_armed;
+}
+
 void EXTI0_IRQHandler(void)
 {
 	if(EXTI_GetITStatus(EXTI_Line0)!=RESET)
 	{
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_15);
-		TIM_Cmd(TIM2, ENABLE);
-		lcd_cmd('!', 1);
-		EXTI_ClearITPendingBit(EXTI_Line0);
+		if(md_armed) {
+			TIM_Cmd(TIM2, ENABLE);
+			lcd_changeScreen(lcd_scr_psw_entry);
+			EXTI_ClearITPendingBit(EXTI_Line0);
+		}
 	}
 }
 
@@ -70,6 +88,7 @@ void TIM2_IRQHandler(void)
 	{
 		TIM_Cmd(TIM2, DISABLE);
 		GPIO_ToggleBits(GPIOD, GPIO_Pin_12);
+		lcd_clear();
 		lcd_write("Alarm");
 		TIM2->CNT=0;
 

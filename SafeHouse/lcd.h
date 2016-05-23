@@ -22,6 +22,13 @@ void lcd_init();
 #define lcd_matrix5x10 0x04
 #define lcd_matrix5x8 0x00
 
+enum lcd_screen {
+	lcd_scr_logo=1,
+	lcd_scr_psw_entry, lcd_scr_psw_ok, lcd_scr_psw_wrong,
+	lcd_scr_info_armed,
+	lcd_scr_info_already_disarmed
+};
+
 void lcd_clear();
 void lcd_cursorHome();
 void lcd_entryModeSet(uint8_t mode);
@@ -33,3 +40,4 @@ void lcd_ddramSet(uint8_t addr);
 uint8_t lcd_busyFlagRead();
 void lcd_write(char* c);
 void lcd_write_n(uint8_t* c, int n);
+int lcd_changeScreen(int newscr);

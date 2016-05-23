@@ -5,6 +5,8 @@
 #include "stm32f4xx_exti.h"
 #include "misc.h"
 #include "stm32f4xx_syscfg.h"
+#include "lcd.h"
+#include "md.h"
 
 //od lewego na klawiaturze
 #define kp_pin_col_2 GPIO_Pin_15
@@ -21,9 +23,12 @@ enum kp_key {	key_none = 0,
 	key_7, 		key_8, 		key_9,
 	key_ast=42,	key_0=48, 	key_hash=35};
 
+char kp_inputBuffer[4];
+int kp_inputBufferIt = 0;
+
 void kp_init() {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Pin = kp_pin_col_1|kp_pin_col_2|kp_pin_col_3;
@@ -61,14 +66,58 @@ void kp_init() {
 }
 
 void kp_event(uint8_t key) {
-	lcd_cmd(key, 1);
+	if(key==key_hash) {
+		lcd_changeScreen(lcd_scr_info_armed);
+		for(int i=0;i<50000000;i++);
+		lcd_changeScreen(lcd_scr_logo);
+		md_arm();
+	}
+
+	else {
+		if(md_isArmed()) {
+			if(kp_inputBufferIt==0) {
+				lcd_changeScreen(lcd_scr_psw_entry);
+			}
+
+			if(key!=key_ast) {
+				kp_inputBuffer[kp_inputBufferIt++]=key;
+
+				if(kp_inputBufferIt>=4) {
+					kp_inputBufferIt=0;
+
+					char psw[4] = {'1','2','3','4'};
+					if (memcmp (kp_inputBuffer, psw, 4) == 0) {
+						lcd_changeScreen(lcd_scr_psw_ok);
+						md_disarm();
+						for(int i=0; i<50000000; i++);
+						lcd_changeScreen(lcd_scr_logo);
+					} else {
+						lcd_changeScreen(lcd_scr_psw_wrong);
+						for(int i=0; i<50000000; i++);
+						lcd_changeScreen(lcd_scr_psw_entry);
+					}
+				} else {
+					lcd_cmd(key, 1);
+				}
+			}
+			else {
+				if (kp_inputBufferIt) kp_inputBufferIt--;
+				lcd_ddramSet(0x46+kp_inputBufferIt);
+			}
+		}
+		else {
+			lcd_changeScreen(lcd_scr_info_already_disarmed);
+			for(int i=0; i<50000000; i++);
+			lcd_changeScreen(lcd_scr_logo);
+		}
+	}
 }
 
 void EXTI15_10_IRQHandler(void)
 {
 	if(EXTI_GetITStatus(EXTI_Line11)!=RESET||
-	   EXTI_GetITStatus(EXTI_Line13)!=RESET||
-	   EXTI_GetITStatus(EXTI_Line15)!=RESET)
+			EXTI_GetITStatus(EXTI_Line13)!=RESET||
+			EXTI_GetITStatus(EXTI_Line15)!=RESET)
 	{
 		for(int i=0; i<100; i++);
 		GPIO_ResetBits(GPIOE, kp_pin_row_1|kp_pin_row_2|kp_pin_row_3|kp_pin_row_4);

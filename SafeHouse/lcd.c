@@ -19,11 +19,13 @@
 #define _DB6 GPIOE, GPIO_Pin_1
 #define _DB7 GPIOE, GPIO_Pin_0
 
+int lcd_currentScreen;
+
 void lcd_cmd(uint8_t cmd, uint8_t RS) {
-	#ifdef lcd_4bit_mode
+#ifdef lcd_4bit_mode
 	lcd_cmd4(cmd,RS);
 	lcd_cmd4(cmd<<4,RS);
-	#else
+#else
 	GPIO_WriteBit(_RS, RS);
 	GPIO_WriteBit(_DB7, cmd&0b10000000);
 	GPIO_WriteBit(_DB6, cmd&0b01000000);
@@ -34,9 +36,9 @@ void lcd_cmd(uint8_t cmd, uint8_t RS) {
 	GPIO_WriteBit(_DB1, cmd&0b00000010);
 	GPIO_WriteBit(_DB0, cmd&0b00000001);
 	GPIO_ResetBits(_E);
-	for(int i=0;i<50000;i++);
+	for(int i=0;i<30000;i++);
 	GPIO_SetBits(_E);
-	#endif
+#endif
 }
 
 void lcd_cmd4(uint8_t cmd4, uint8_t RS) {
@@ -46,7 +48,7 @@ void lcd_cmd4(uint8_t cmd4, uint8_t RS) {
 	GPIO_WriteBit(_DB5, cmd4&0b00100000);
 	GPIO_WriteBit(_DB4, cmd4&0b00010000);
 	GPIO_ResetBits(_E);
-	for(int i=0;i<50000;i++);
+	for(int i=0;i<30000;i++);
 	GPIO_SetBits(_E);
 }
 
@@ -64,7 +66,7 @@ void lcd_init() {
 
 	for(int i=0; i<5000000;i++);//czekaj na ustabilizowanie napiêcia
 
-	#ifdef lcd_4bit_mode
+#ifdef lcd_4bit_mode
 	lcd_cmd4(0b00110000,0);
 	for(int i=0; i<100000;i++);
 	lcd_cmd4(0b00110000,0);
@@ -72,14 +74,14 @@ void lcd_init() {
 	lcd_cmd4(0b00110000,0);//3x Fset
 	for(int i=0; i<10000;i++);
 	lcd_cmd4(0b00100000,0);
-	#else
+#else
 	lcd_cmd(0b00110000,0);
 	for(int i=0; i<100000;i++);
 	lcd_cmd(0b00110000,0);
 	for(int i=0; i<10000;i++);
 	lcd_cmd(0b00110000,0);//3x Fset
 	for(int i=0; i<10000;i++);
-	#endif
+#endif
 
 	lcd_functionSet(lcd_interface4bit|lcd_dspTwoRows|lcd_matrix5x8);
 	lcd_onOff(lcd_off);
@@ -87,22 +89,21 @@ void lcd_init() {
 	lcd_loadCustomChars();
 
 	lcd_clear();
-
-	lcd_onOff(lcd_on|lcd_cursorOff|lcd_blinkingOn);
 }
 
 void lcd_loadCustomChars() {
 	lcd_cgramSet(0,0);
 	uint8_t znak[8*8] = {
-		0,0,14,1,15,17,15,2,//¹
-		2,4,14,16,16,17,14,0, //æ
-		0,0,14,17,31,16,14,2, //ê
-		12,4,6,12,4,4,14,0, //³
-		2,4,22,25,17,17,17,0, //ñ
-		2,4,14,17,17,17,14,0, //ó
-		2,4,14,16,14,1,30,0, //œ
-		2,4,31,2,4,8,31,0, //Ÿ
-		4,0,31,2,4,8,31,0}; //¿
+			0,0,14,1,15,17,15,2,//¹
+			2,4,14,16,16,17,14,0, //æ
+			0,0,14,17,31,16,14,2, //ê
+			12,4,6,12,4,4,14,0, //³
+			2,4,22,25,17,17,17,0, //ñ
+			2,4,14,17,17,17,14,0, //ó
+			2,4,14,16,14,1,30,0, //œ
+			//2,4,31,2,4,8,31,0, //Ÿ
+			4,0,31,2,4,8,31,0 //¿
+	};
 	lcd_write_n(znak,8*8);
 	lcd_ddramSet(0);
 }
@@ -141,15 +142,60 @@ void lcd_ddramSet(uint8_t addr) {
 
 void lcd_write(char* c) {
 	for(int i=0; c[i]; i++) {
-		if(i==16)lcd_ddramSet(0x40);
-		if(c[i]=='\n') lcd_ddramSet(0x40);
+		if(c[i]=='\8') lcd_cmd(0,1);
+		else if(c[i]=='\n') lcd_ddramSet(0x40);
 		else lcd_cmd(c[i],1);
 	}
 }
 
 void lcd_write_n(uint8_t* c, int n) {
 	for(int i=0;i<n;i++) {
-		if(i==16)lcd_ddramSet(0x40);
 		lcd_cmd(c[i],1);
 	}
+}
+
+int lcd_changeScreen(int newscr) {
+	if (lcd_currentScreen!=newscr) {
+		lcd_currentScreen = newscr;
+
+		switch(newscr) {
+		case lcd_scr_logo:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_cursorOff|lcd_blinkingOff);
+			lcd_write("   SafeHouse");
+			break;
+
+		case lcd_scr_psw_entry:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_cursorOn);
+			lcd_write("  Podaj has\3o:\n      ");
+			break;
+
+		case lcd_scr_psw_ok:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_blinkingOff);
+			lcd_write("       OK\nalarm wy\3\8czony");
+			break;
+
+		case lcd_scr_psw_wrong:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_blinkingOff);
+			lcd_write("   Z\3e has\3o!");
+			break;
+
+		case lcd_scr_info_armed:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_blinkingOff);
+			lcd_write("  Alarm zosta\3\n    wl\8czony");
+			break;
+
+		case lcd_scr_info_already_disarmed:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_blinkingOff);
+			lcd_write("Alarm wy\3\8czony!\n   wci\6nij #");
+			break;
+		}
+
+		return 1;
+	} else return 0;
 }
