@@ -77,8 +77,9 @@ void EXTI0_IRQHandler(void)
 		if(md_armed) {
 			TIM_Cmd(TIM2, ENABLE);
 			lcd_changeScreen(lcd_scr_psw_entry);
-			EXTI_ClearITPendingBit(EXTI_Line0);
 		}
+
+		EXTI_ClearITPendingBit(EXTI_Line0);
 	}
 }
 
