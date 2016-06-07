@@ -23,7 +23,7 @@ int main(void)
 
 	lcd_init();
 
-	//wifi_init();
+	wifi_init();
 
 	md_init();
 
