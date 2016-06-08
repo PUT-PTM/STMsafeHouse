@@ -1,0 +1,6 @@
+/etc/httpd/conf
+/var/www/cgi-bin
+/var/www/html
+/var/tmp
+
+
