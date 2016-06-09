@@ -44,9 +44,9 @@ namespace System
                     stream.Write(msg, 0, msg.Length);
                 }
 
-                if (data == "sendemail")
+                if (data == "sendmail")
                 {
-                    run_cmd("myemail.py", "");
+                    run_cmd("myemail.py");
                 }
 
                 //jeśli nie - serwer pyta użytkownika, czy zakończyć połączenie, czy czekać na kolejną wiadomość
@@ -95,23 +95,23 @@ namespace System
             Console.Read();
         }
 
-        static void run_cmd(string cmd, string args)
+        static void run_cmd(string cmd)
         {
             System.Diagnostics.ProcessStartInfo start = new System.Diagnostics.ProcessStartInfo();
-            start.FileName = "C:/Users/Dominika/Desktop/" + cmd;
-            start.Arguments = string.Format("{0} {1}", cmd, args);
+            start.FileName = "C:/Users/Dominika/Desktop/myemail.py";
+            start.Arguments = string.Format("{0} {1}", cmd, "");
             start.UseShellExecute = true;
             // start.UseShellExecute = false;
             // start.RedirectStandardOutput = true;
             System.Diagnostics.Process proces = System.Diagnostics.Process.Start(start);
-          /*  using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                using (StreamReader reader = process.StandardOutput)
-                {
-                    string result = reader.ReadToEnd();
-                    Console.Write(result);
-                }
-            } */
+            /*  using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
+              {
+                  using (StreamReader reader = process.StandardOutput)
+                  {
+                      string result = reader.ReadToEnd();
+                      Console.Write(result);
+                  }
+              } */
         }
-    }  
+    }
 }
