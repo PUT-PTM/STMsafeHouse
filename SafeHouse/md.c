@@ -5,6 +5,7 @@
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_tim.h"
 #include "lcd.h"
+#include "wifi.h"
 
 volatile int md_armed = 0;
 
@@ -88,11 +89,16 @@ void TIM2_IRQHandler(void)
 	if(TIM_GetITStatus(TIM2,TIM_IT_Update)!=RESET)
 	{
 		TIM_Cmd(TIM2, DISABLE);
-		GPIO_ToggleBits(GPIOD, GPIO_Pin_12);
-		lcd_clear();
-		lcd_write("Alarm");
+		sendmail();
 		TIM2->CNT=0;
 
 		TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
 	}
+}
+
+void sendmail() {
+	USART_put("AT+CIPSTART=\"TCP\",\"192.168.0.106\",7777\r\n");
+	for(int i=0; i<1000000;i++);
+	USART_put("AT+CIPSEND=8\r\n");
+	USART_put("sendmail");
 }
