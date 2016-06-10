@@ -46,8 +46,8 @@ void kp_init() {
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=EXTI15_10_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x00;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0x00;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -86,7 +86,7 @@ void kp_event(uint8_t key) {
 					kp_inputBufferIt=0;
 
 					char psw[4] = {'1','2','3','4'};
-					if (memcmp (kp_inputBuffer, psw, 4) == 0) {
+					if (memcmp(kp_inputBuffer, psw, 4) == 0) {
 						lcd_changeScreen(lcd_scr_psw_ok);
 						md_disarm();
 						for(int i=0; i<50000000; i++);

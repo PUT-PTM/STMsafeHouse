@@ -94,6 +94,7 @@ void lcd_init() {
 void lcd_loadCustomChars() {
 	lcd_cgramSet(0,0);
 	uint8_t znak[8*8] = {
+			0,31,31,31,31,31,0,0,//
 			0,0,14,1,15,17,15,2,//¹
 			2,4,14,16,16,17,14,0, //æ
 			0,0,14,17,31,16,14,2, //ê
@@ -102,7 +103,7 @@ void lcd_loadCustomChars() {
 			2,4,14,17,17,17,14,0, //ó
 			2,4,14,16,14,1,30,0, //œ
 			//2,4,31,2,4,8,31,0, //Ÿ
-			4,0,31,2,4,8,31,0 //¿
+			//4,0,31,2,4,8,31,0 //¿
 	};
 	lcd_write_n(znak,8*8);
 	lcd_ddramSet(0);
@@ -156,46 +157,67 @@ void lcd_write_n(uint8_t* c, int n) {
 
 int lcd_changeScreen(int newscr) {
 	if (lcd_currentScreen!=newscr) {
-		lcd_currentScreen = newscr;
 
 		switch(newscr) {
 		case lcd_scr_logo:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_cursorOff|lcd_blinkingOff);
 			lcd_write("   SafeHouse");
+			lcd_ddramSet(0x03);
+			lcd_write("SafeHouse");
 			break;
 
 		case lcd_scr_psw_entry:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_cursorOn);
 			lcd_write("  Podaj has\3o:\n      ");
+			lcd_ddramSet(0x02);
+			lcd_write("Podaj has\4o:");
+			lcd_ddramSet(0x46);
 			break;
 
 		case lcd_scr_psw_ok:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_blinkingOff);
-			lcd_write("       OK\nalarm wy\3\8czony");
+			lcd_ddramSet(0x07);
+			lcd_write("OK");
+			lcd_ddramSet(0x40);
+			lcd_write("alarm wy\4\1czony");
 			break;
 
 		case lcd_scr_psw_wrong:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_blinkingOff);
-			lcd_write("   Z\3e has\3o!");
+			lcd_ddramSet(0x03);
+			lcd_write("Z\4e has\4o!");
 			break;
 
 		case lcd_scr_info_armed:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_blinkingOff);
-			lcd_write("  Alarm zosta\3\n    wl\8czony");
+			lcd_ddramSet(0x02);
+			lcd_write("Alarm zosta\4");
+			lcd_ddramSet(0x44);
+			lcd_write("wl\1czony");
 			break;
 
 		case lcd_scr_info_already_disarmed:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_blinkingOff);
-			lcd_write("Alarm wy\3\8czony!\n   wci\6nij #");
+			lcd_write("Alarm wy\4\1czony!");
+			lcd_ddramSet(0x43);
+			lcd_write("wci\7nij #");
 			break;
+
+		case lcd_scr_info_connecting:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_blinkingOff);
+			lcd_write("\4\1czenie z wifi");
+			break;
+
 		}
 
+		lcd_currentScreen = newscr;
 		return 1;
 	} else return 0;
 }

@@ -9,6 +9,11 @@
 //5c:cf:7f:87:7e:b1
 volatile int wifi_i;
 volatile char wifi_data[200];
+volatile int wifi_state;
+
+enum {
+	wifi_disconnected=0, wifi_connected, wifi_got_ip, wifi_connected_to_serv
+};
 
 void USART_put(char* s){
 	int i=0;
@@ -17,7 +22,7 @@ void USART_put(char* s){
 		USART_SendData(USART2, s[i++]);
 		while(USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
 	}
-	for(int i=0;i<1000000; i++);
+	for(int i=0;i<10000000; i++);
 }
 
 void USART2_IRQHandler(void){
@@ -25,15 +30,36 @@ void USART2_IRQHandler(void){
 	{
 
 		char temp=USART_ReceiveData(USART2);
-		if(temp != '\n'){
-			wifi_data[wifi_i++]=temp;
-		} else {
-//			lcd_clear();
-//			lcd_write_n(wifi_data,wifi_i-1);
+
+		if (temp == '\n') {
+			wifi_data[wifi_i]='\0';
+			wifi_readReply(wifi_data);
+			/*for(int i=0;i<wifi_i;) {
+				lcd_cmd(wifi_data[i],1);
+				i++;
+				if(i%32==16) lcd_ddramSet(0x40);
+				if(i%32==0) {lcd_ddramSet(0x00); for(int j=0;j<10000000;j++);}
+			}
+			lcd_ddramSet(0);*/
 			wifi_i=0;
-			for(int i=0;i<100000000; i++);
 		}
+		else if(temp != '\r'){
+			wifi_data[wifi_i++]=temp;
+			if(wifi_i>=200) wifi_i=0;
+		}
+
 	}
+}
+
+
+void wifi_readReply(char* string){
+	if(strstr(string, "WIFI ")) {
+		if (strstr(string, "DISCONNECTED")) wifi_state = wifi_disconnected;
+		else if(strstr(string, "CONNECTED")) wifi_state = wifi_connected;
+		else if(strstr(string, "GOT IP")) wifi_state = wifi_got_ip;
+	}
+	else if(strstr(string, "ALREADY CONNECTED") || strstr(wifi_data, "CONNECT")) wifi_state = wifi_connected_to_serv;
+	else if(strstr(string, "CLOSED")) wifi_state = wifi_got_ip;
 }
 
 void wifi_init(){
@@ -71,18 +97,45 @@ void wifi_init(){
 
 	USART_ITConfig(USART2,USART_IT_RXNE,ENABLE);
 
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=USART2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 	NVIC_EnableIRQ(USART2_IRQn);
 
+	lcd_changeScreen(lcd_scr_info_connecting);
 
-	USART_put("AT+CWMODE_DEF=1\r\n");
-//	USART_put("AT+CIPMUX=0\r\n"); // Tryb (nie)wielopoczeniowy
-	for(int i=0;i<1000000; i++);
-	USART_put("AT+CWJAP_DEF=\"konopa\",\"39652400\"\r\n");
+	USART_put("ATE0\r\n");
+	USART_put("AT+CWMODE_CUR=1\r\n");
+	USART_put("AT+CIPMUX=0\r\n");
 
+	USART_put("AT+CWJAP_CUR=\"SSID\",\"HASLO\"\r\n");
+
+	while(wifi_state != wifi_got_ip);
+
+	/*while(wifi_state != wifi_connected_to_serv) {
+		USART_put("AT+CIPSTART=\"TCP\",\"216.58.194.206\",80\r\n");//GOOGLE
+		for(int i=0; i<50000000; i++);
+	}
+
+	while (wifi_state == wifi_connected_to_serv){
+		USART_put("AT+CIPSEND=137\r\n");
+		USART_put("GET /search?q=query+string&site=default_collection\n&client=default_frontend\n&output=xml_no_dtd\n&proxystylesheet=default_frontend HTTP/1.0");
+	}*/
+
+
+	lcd_changeScreen(lcd_scr_logo);
+}
+
+void sendmail() {
+	while(wifi_state != wifi_connected_to_serv) {
+		USART_put("AT+CIPSTART=\"TCP\",\"192.168.1.3\",8081\r\n");
+		for(int i=0; i<50000000; i++);
+	}
+
+	USART_put("AT+CIPSEND=8\r\n");
+	USART_put("sendmail");
 }

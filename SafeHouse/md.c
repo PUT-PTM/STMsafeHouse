@@ -16,8 +16,8 @@ void md_init(){
 
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=EXTI0_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x00;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0x00;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -48,8 +48,8 @@ void md_init(){
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
 
 	NVIC_InitStructure.NVIC_IRQChannel=TIM2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0x01;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0x00;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
@@ -89,16 +89,10 @@ void TIM2_IRQHandler(void)
 	if(TIM_GetITStatus(TIM2,TIM_IT_Update)!=RESET)
 	{
 		TIM_Cmd(TIM2, DISABLE);
-		sendmail();
 		TIM2->CNT=0;
-
+		sendmail();
 		TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
 	}
 }
 
-void sendmail() {
-	USART_put("AT+CIPSTART=\"TCP\",\"192.168.0.106\",7777\r\n");
-	for(int i=0; i<1000000;i++);
-	USART_put("AT+CIPSEND=8\r\n");
-	USART_put("sendmail");
-}
+
