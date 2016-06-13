@@ -12,7 +12,7 @@ volatile char wifi_data[200];
 volatile int wifi_state;
 
 enum {
-	wifi_disconnected=0, wifi_connected, wifi_got_ip, wifi_connected_to_serv
+	wifi_disconnected=0, wifi_connected, wifi_got_ip, wifi_connected_to_serv, wifi_sent
 };
 
 void USART_put(char* s){
@@ -25,6 +25,12 @@ void USART_put(char* s){
 	for(int i=0;i<10000000; i++);
 }
 
+void USART_put_char(char c){
+	while(USART_GetFlagStatus(USART2, USART_FLAG_TXE)==RESET);
+	USART_SendData(USART2, c);
+	while(USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
+}
+
 void USART2_IRQHandler(void){
 	if(USART_GetITStatus(USART2,USART_IT_RXNE)!=RESET)
 	{
@@ -34,13 +40,6 @@ void USART2_IRQHandler(void){
 		if (temp == '\n') {
 			wifi_data[wifi_i]='\0';
 			wifi_readReply(wifi_data);
-			/*for(int i=0;i<wifi_i;) {
-				lcd_cmd(wifi_data[i],1);
-				i++;
-				if(i%32==16) lcd_ddramSet(0x40);
-				if(i%32==0) {lcd_ddramSet(0x00); for(int j=0;j<10000000;j++);}
-			}
-			lcd_ddramSet(0);*/
 			wifi_i=0;
 		}
 		else if(temp != '\r'){
@@ -60,6 +59,7 @@ void wifi_readReply(char* string){
 	}
 	else if(strstr(string, "ALREADY CONNECTED") || strstr(wifi_data, "CONNECT")) wifi_state = wifi_connected_to_serv;
 	else if(strstr(string, "CLOSED")) wifi_state = wifi_got_ip;
+	else if(strstr(string, "SEND OK")) wifi_state = wifi_sent;
 }
 
 void wifi_init(){
@@ -112,30 +112,49 @@ void wifi_init(){
 	USART_put("AT+CWMODE_CUR=1\r\n");
 	USART_put("AT+CIPMUX=0\r\n");
 
-	USART_put("AT+CWJAP_CUR=\"SSID\",\"HASLO\"\r\n");
+	USART_put("AT+CWJAP_CUR=\"SSID\",\"PASSWORD\"\r\n");
 
 	while(wifi_state != wifi_got_ip);
-
-	/*while(wifi_state != wifi_connected_to_serv) {
-		USART_put("AT+CIPSTART=\"TCP\",\"216.58.194.206\",80\r\n");//GOOGLE
-		for(int i=0; i<50000000; i++);
-	}
-
-	while (wifi_state == wifi_connected_to_serv){
-		USART_put("AT+CIPSEND=137\r\n");
-		USART_put("GET /search?q=query+string&site=default_collection\n&client=default_frontend\n&output=xml_no_dtd\n&proxystylesheet=default_frontend HTTP/1.0");
-	}*/
-
 
 	lcd_changeScreen(lcd_scr_logo);
 }
 
-void sendmail() {
+void wifi_connectToServer() {
 	while(wifi_state != wifi_connected_to_serv) {
-		USART_put("AT+CIPSTART=\"TCP\",\"192.168.1.3\",8081\r\n");
-		for(int i=0; i<50000000; i++);
+			USART_put("AT+CIPSTART=\"TCP\",\"192.168.1.3\",8081\r\n");
+			for(int i=0; i<100000000; i++);
+	}
+}
+
+void sendmail() {
+	wifi_connectToServer();
+
+	while (wifi_state != wifi_sent) {
+		USART_put("AT+CIPSENDEX=8\r\n");
+		USART_put("sendmail");
+		USART_SendData(USART2, 0);
+		wifi_readReply(wifi_data);
 	}
 
-	USART_put("AT+CIPSEND=8\r\n");
-	USART_put("sendmail");
+	wifi_state = wifi_connected_to_serv;
+}
+
+int verifyPassword(char* pass) {
+	wifi_connectToServer();
+
+	while (wifi_state != wifi_sent) {
+		USART_put("AT+CIPSENDEX=4\r\n");
+
+		USART_put("verify:");
+		for(int i=0; i<4; i++)
+			USART_put_char(pass[i]);
+
+		USART_put_char('\0');
+	}
+
+	wifi_readReply(wifi_data);
+
+	wifi_state = wifi_connected_to_serv;
+
+	return 1;
 }

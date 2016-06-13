@@ -44,9 +44,10 @@ void kp_init() {
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
 
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=EXTI15_10_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -85,8 +86,8 @@ void kp_event(uint8_t key) {
 				if(kp_inputBufferIt>=4) {
 					kp_inputBufferIt=0;
 
-					char psw[4] = {'1','2','3','4'};
-					if (memcmp(kp_inputBuffer, psw, 4) == 0) {
+					lcd_changeScreen(lcd_scr_psw_verifying);
+					if (verifyPassword(kp_inputBuffer)) {
 						lcd_changeScreen(lcd_scr_psw_ok);
 						md_disarm();
 						for(int i=0; i<50000000; i++);

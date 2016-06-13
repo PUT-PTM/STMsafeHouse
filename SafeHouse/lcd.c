@@ -192,6 +192,12 @@ int lcd_changeScreen(int newscr) {
 			lcd_write("Z\4e has\4o!");
 			break;
 
+		case lcd_scr_psw_verifying:
+			lcd_clear();
+			lcd_onOff(lcd_on|lcd_blinkingOff);
+			lcd_write("Weryfikowanie...");
+			break;
+
 		case lcd_scr_info_armed:
 			lcd_clear();
 			lcd_onOff(lcd_on|lcd_blinkingOff);

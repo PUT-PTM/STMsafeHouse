@@ -24,7 +24,7 @@ void lcd_init();
 
 enum lcd_screen {
 	lcd_scr_logo=1,
-	lcd_scr_psw_entry, lcd_scr_psw_ok, lcd_scr_psw_wrong,
+	lcd_scr_psw_entry, lcd_scr_psw_ok, lcd_scr_psw_wrong, lcd_scr_psw_verifying,
 	lcd_scr_info_armed,
 	lcd_scr_info_already_disarmed,
 	lcd_scr_info_connecting
