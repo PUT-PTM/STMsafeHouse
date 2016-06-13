@@ -1,0 +1,7 @@
+c:\users\dominika\documents\visual studio 2015\Projects\Serwer\Serwer\bin\Debug\Serwer.exe.config
+C:\Users\Dominika\Documents\GitHub\STMsafeHouse\serwer\Serwer\Serwer\bin\Debug\Serwer.exe.config
+C:\Users\Dominika\Documents\GitHub\STMsafeHouse\serwer\Serwer\Serwer\bin\Debug\Serwer.exe
+C:\Users\Dominika\Documents\GitHub\STMsafeHouse\serwer\Serwer\Serwer\bin\Debug\Serwer.pdb
+C:\Users\Dominika\Documents\GitHub\STMsafeHouse\serwer\Serwer\Serwer\obj\Debug\Serwer.csprojResolveAssemblyReference.cache
+C:\Users\Dominika\Documents\GitHub\STMsafeHouse\serwer\Serwer\Serwer\obj\Debug\Serwer.exe
+C:\Users\Dominika\Documents\GitHub\STMsafeHouse\serwer\Serwer\Serwer\obj\Debug\Serwer.pdb
