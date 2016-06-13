@@ -108,6 +108,7 @@ void wifi_init(){
 
 	lcd_changeScreen(lcd_scr_info_connecting);
 
+
 	USART_put("ATE0\r\n");
 	USART_put("AT+CWMODE_CUR=1\r\n");
 	USART_put("AT+CIPMUX=0\r\n");
@@ -143,7 +144,7 @@ int verifyPassword(char* pass) {
 	wifi_connectToServer();
 
 	while (wifi_state != wifi_sent) {
-		USART_put("AT+CIPSENDEX=4\r\n");
+		USART_put("AT+CIPSENDEX=11\r\n");
 
 		USART_put("verify:");
 		for(int i=0; i<4; i++)
@@ -151,10 +152,11 @@ int verifyPassword(char* pass) {
 
 		USART_put_char('\0');
 	}
-
-	wifi_readReply(wifi_data);
-
 	wifi_state = wifi_connected_to_serv;
 
-	return 1;
+	while(1) {
+		if(!strncmp(wifi_data, "+IPD,19:verification:passed", 27)) return 1;
+		else if(!strncmp(wifi_data, "+IPD,19:verification:failed", 27)) return 0;
+		for(int i=0; i < 500000; i++);
+	}
 }
