@@ -8,7 +8,7 @@
 
 //od lewego na wyswietlaczu
 #define _RS  GPIOE, GPIO_Pin_5
-#define _RW
+#define _RW  //GND
 #define _E   GPIOE, GPIO_Pin_4
 #define _DB0
 #define _DB1
@@ -19,8 +19,10 @@
 #define _DB6 GPIOE, GPIO_Pin_1
 #define _DB7 GPIOE, GPIO_Pin_0
 
+//zmienna okreslajaca, co jest w danej chwili wyswietlane i z jakimi ustawieniami
 int lcd_currentScreen;
 
+//wyslanie pojedynczej komendy do wyswietlacza
 void lcd_cmd(uint8_t cmd, uint8_t RS) {
 #ifdef lcd_4bit_mode
 	lcd_cmd4(cmd,RS);
@@ -41,6 +43,7 @@ void lcd_cmd(uint8_t cmd, uint8_t RS) {
 #endif
 }
 
+//wyslanie 4 najstarszych bitow do wyswietlacza
 void lcd_cmd4(uint8_t cmd4, uint8_t RS) {
 	GPIO_WriteBit(_RS, RS);
 	GPIO_WriteBit(_DB7, cmd4&0b10000000);
@@ -66,6 +69,7 @@ void lcd_init() {
 
 	for(int i=0; i<5000000;i++);//czekaj na ustabilizowanie napiêcia
 
+	//inicjalizacja wyswietlacza (rozna dla trybow 4 i 8-bitowego)
 #ifdef lcd_4bit_mode
 	lcd_cmd4(0b00110000,0);
 	for(int i=0; i<100000;i++);
@@ -83,6 +87,7 @@ void lcd_init() {
 	for(int i=0; i<10000;i++);
 #endif
 
+	//wczytanie ustawien wyswietlacza
 	lcd_functionSet(lcd_interface4bit|lcd_dspTwoRows|lcd_matrix5x8);
 	lcd_onOff(lcd_off);
 	lcd_entryModeSet(lcd_dirRight|lcd_shiftCursor);
@@ -91,6 +96,7 @@ void lcd_init() {
 	lcd_clear();
 }
 
+// zapisanie wlasnych znakow do pamieci cgram
 void lcd_loadCustomChars() {
 	lcd_cgramSet(0,0);
 	uint8_t znak[8*8] = {
@@ -109,52 +115,84 @@ void lcd_loadCustomChars() {
 	lcd_ddramSet(0);
 }
 
+// czysci wyswietlacz i ustawia kursor w pozycji zerowej
 void lcd_clear() {
 	lcd_cmd(0x01, 0);
 }
 
+// ustawia kursor w pozycji zerowej
 void lcd_cursorHome() {
 	lcd_cmd(0x02, 0);
 }
 
+// okreslenie trybu pracy okna/kursora
+// lcd_shiftWindow - przesuwanie okna
+// lcd_shiftCursor - przesuwanie kursora
+// lcd_dirRight - kierunek w prawo
+// lcd_dirLeft - kierunek w lewo
 void lcd_entryModeSet(uint8_t mode) {
 	lcd_cmd(0x04|mode, 0);
 }
 
+// wlacza/wylacza funkcje
+// lcd_on/lcd_off - caly wyswietlacz
+// lcd_cursorOn/lcd_cursorOff - podkreslenie znaku pod kursorem
+// lcd_blinkingOn/lcd_blinkingOff - migajacy kursor
 void lcd_onOff(uint8_t params) {
 	lcd_cmd(0x08|params, 0);
 }
 
+// okreslenie trybu pracy okna/kursora
+// lcd_shiftWindow - przesuwanie okna
+// lcd_shiftCursor - przesuwanie kursora
+// lcd_dirRight - kierunek w prawo
+// lcd_dirLeft - kierunek w lewo
 void lcd_cursorShift(uint8_t mode) {
 	lcd_cmd(0x10|(mode<<2), 0);
 }
 
+// okreslenie ustawien pracy
+// lcd_interface8bit/lcd_interface4bit
+// lcd_dspOneRow/lcd_dspTwoRows - jeden/dwa wiersze
+// lcd_matrix5x10//lcd_matrix5x8 - rozmiar znaku
 void lcd_functionSet(uint8_t mode) {
 	lcd_cmd(0x20|mode, 0);
 }
 
+// ustawienie adresu pamieci generatora znakow
+// argumentami sa 3-bitowy adres znaku i 3-bitowy adres linii danego znaku
+// powoduje przelaczenie pisania do pamieci CGRAM.
 void lcd_cgramSet(uint8_t charAddr, uint8_t lineAddr) {
 	lcd_cmd(0x40|((0x07&charAddr)<<3)|(0x07&lineAddr), 0);
 }
 
+// ustawienie adresu pamieci wyswietlacza
+// argumentem jest 7-bitowy adres wyswietlacza (0x40 - pierwsza kolumna drugiego wiersza)
+// powoduje przelaczenie pisania do pamieci DDRAM.
 void lcd_ddramSet(uint8_t addr) {
 	lcd_cmd(0x80|addr, 0);
 }
 
+// wpisanie do pamieci ciegu znakow, az do napotkaniania znaku '\0'
+// '\n' przechodzi do drugiego wiersza
 void lcd_write(char* c) {
 	for(int i=0; c[i]; i++) {
-		if(c[i]=='\8') lcd_cmd(0,1);
-		else if(c[i]=='\n') lcd_ddramSet(0x40);
+		if(c[i]=='\n') lcd_ddramSet(0x40);
 		else lcd_cmd(c[i],1);
 	}
 }
 
+// wpisanie do pamieci ciegu n znakow
 void lcd_write_n(uint8_t* c, int n) {
 	for(int i=0;i<n;i++) {
 		lcd_cmd(c[i],1);
 	}
 }
 
+// funkcja zmieniajaca wyswietlany ekran
+// przechowuje dane dotyczace ustawien wyswietlania i tekstu jaki ma byc wypisany
+// pilnuje, aby nie odswiezac ekranu, jezeli zadany ekran jest juz ustawiony
+// zwraca 1, jezeli nastapilo odswiezenie i 0 jezeli nie
 int lcd_changeScreen(int newscr) {
 	if (lcd_currentScreen!=newscr) {
 

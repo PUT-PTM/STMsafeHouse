@@ -7,6 +7,9 @@
 #include "lcd.h"
 #include "wifi.h"
 
+//Wyjscie NC z czujki -> pin PA0
+
+//zmienna przyjmuje wartosc 1, jezeli alarm jest uzbrojony
 volatile int md_armed = 0;
 
 void md_init(){
@@ -14,6 +17,7 @@ void md_init(){
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
+    // pin od czujki wlacza timer alarmu
 	NVIC_InitTypeDef NVIC_InitStructure;
 	NVIC_InitStructure.NVIC_IRQChannel=EXTI0_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
@@ -39,7 +43,7 @@ void md_init(){
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA,EXTI_PinSource0);
 
 
-
+	// timer dopuszcza pewien czas na wpisanie hasla przed wyslaniem ostrzezenia
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_TimeBaseStructure.TIM_Period = 41999;
 	TIM_TimeBaseStructure.TIM_Prescaler = 39999;//20s
@@ -57,10 +61,12 @@ void md_init(){
 	TIM_ITConfig(TIM2,TIM_IT_Update,ENABLE);
 }
 
+// uzbrojenie alarmu
 void md_arm() {
 	md_armed = 1;
 }
 
+// rozbrojenie alarmu
 void md_disarm() {
 	md_armed = 0;
 	TIM_Cmd(TIM2, DISABLE);
@@ -71,6 +77,7 @@ int md_isArmed() {
 	return md_armed;
 }
 
+// przerwanie od czujki. uruchamia timer, jezeli alarm jset uzbrojony
 void EXTI0_IRQHandler(void)
 {
 	if(EXTI_GetITStatus(EXTI_Line0)!=RESET)
@@ -84,6 +91,7 @@ void EXTI0_IRQHandler(void)
 	}
 }
 
+// po okreslonym czasie timer uruchamia wysylanie e-maila do uzytkownika, o ile nie zostanie wylaczony
 void TIM2_IRQHandler(void)
 {
 	if(TIM_GetITStatus(TIM2,TIM_IT_Update)!=RESET)

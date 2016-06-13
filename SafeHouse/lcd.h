@@ -22,6 +22,7 @@ void lcd_init();
 #define lcd_matrix5x10 0x04
 #define lcd_matrix5x8 0x00
 
+// dostepne predefiniowane ekrany i zwiazane z nimi zachowania
 enum lcd_screen {
 	lcd_scr_logo=1,
 	lcd_scr_psw_entry, lcd_scr_psw_ok, lcd_scr_psw_wrong, lcd_scr_psw_verifying,
