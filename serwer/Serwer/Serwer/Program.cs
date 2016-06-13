@@ -50,40 +50,16 @@ namespace System
 
                 if (data == "sendmail")
                 {
+                    //uruchamianie skryptu od maila
                     run_cmd("myemail.py");
                 }
                 else
-                {
-                    if (data == "passwd")
-                    {
-                        Console.WriteLine("Podaj nazwe uzytkownika: ");
-                        String login = Console.ReadLine();
-                        Console.WriteLine("Podaj stare haslo: ");
-                        String stare_haslo = Console.ReadLine();
-                        if (check_pass_and_login(login, loginy, stare_haslo, hasla) == true)
-                        {
-                            Console.WriteLine("Podaj nowe haslo: ");
-                            String nowe_haslo = Console.ReadLine();
-                            Console.WriteLine("Powtorz nowe haslo: ");
-                            String nowe_haslo2 = Console.ReadLine();
-                            if (nowe_haslo == nowe_haslo2)
-                            {
-                                for (int j = 0; j < loginy.Length; j++)
-                                {
-                                    if (login == loginy[j]) hasla[j] = nowe_haslo;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
+                {       //sprawdzanie wystepowania hasla
                         if (check_pass(data, hasla) == true) data2 = "verification:passed";
                         else data2 = "verification:failed";
                         stream.Write(Encoding.Default.GetBytes(data2), 0, data2.Length);
                         stream.Flush();
                     }
-                   
-                }
                   
             } while (true);
 
@@ -91,13 +67,14 @@ namespace System
             stream.Close();
             Serwer.Stop();
         }
-
+        // nasluch na czytanie z konsoli
         static void localListener()
         {
             while (true)
             {
                 Thread.Sleep(1000);
                 String data = Console.ReadLine();
+                // zmiana hasla
                 if (data == "passwd")
                 {
                     Console.WriteLine("Podaj nazwe uzytkownika: ");
@@ -127,6 +104,7 @@ namespace System
             }
         }
 
+        // sprawdzanie czy haslo wystepuje
         static bool check_pass(String data, String[] hasla)
         {
             for (int i = 0; i < hasla.Length; i++)
@@ -135,7 +113,7 @@ namespace System
             }
                     return false;
         }
-
+        // sprawdzanie czy haslo nalezy do konkretnego loginu
         static bool check_pass_and_login(String login, String[] loginy, String pass, String[] hasla)
         {
             for(int i=0; i<loginy.Length; i++)
@@ -144,6 +122,8 @@ namespace System
             }
             return false;
         }
+
+        // uruchomienie skryptu do maila
         static void run_cmd(string cmd)
         {
             System.Diagnostics.ProcessStartInfo start = new System.Diagnostics.ProcessStartInfo();
