@@ -6,6 +6,12 @@
 #include "misc.h"
 #include "lcd.h"
 
+//RX - TX (PA2)
+//TX - RX (PA3)
+//CH_PD - 3.3V
+//VCC - 3.3V
+
+
 //5c:cf:7f:87:7e:b1
 //bufor danych przychodzacych
 volatile int wifi_i;
