@@ -1,32 +1,32 @@
 # STMsafeHouse
 
-## Overdrive
-### STMsafeHouse is a simply security system basted on motion detector. It's sending e-mail message, when someone unauthorized step into your house.
+## Overview
+ STMsafeHouse is a simple security system based on STM32F4 microcontroller. It's main function is to notify the user about a break-in via email.
 
 ## Description
-### Project uses STM32F4-Disovery board with three modules: Wi-Fi adapter, which is connected by UART connection, numeric keyboard and simply display. You've got 20 seconds to write your pin on clipboard after detecting your presence or e-mail will be send. Also when you write wrong pin three times e-mail will be send. Theres webside and server aplication to add users or change passwords.
+ Project consists of 3 modules: a password authentification server, web-based http user service, and an STM32F4-Discovery board with a Wi-Fi adapter, connected by UART, numeric keyboard, an HD44780 lcd display and one or more motion detectors. After detecting a break-in the device sends an e-mail to the user. It also allows users to arm and disarm the alarm. Passwords are stored on the server and can be changed via a website. The system will also notify about multiple incorrect password entries.
 
 ## Tools
 - CooCox CoIDE, Version 1.7.8
 - Visual Studio 2015
 
 ## How to compile
-- Just compile it, nothing more.
+- The code for STM32 must be compiled for each user individually, since WLAN data is hard-coded.
+- To do that, simply open the project in CooCox, follow the steps described below and compile.
+- You do not need to perform additional actions to compile other modules.
 
 ## How to run
-- connect display, keyboard, motion sensor and Wi-Fi module to write pins described in "lcd.c", "keypad.c", "md.c" and "wifi.c"
-files
-- open Visual Studio?
-- open CoIDE, in "wifi.c" file, in line AT+CWJAP_CUR=\"SSID\",\"PASSWORD\" change SSID and PASSWORD for your own. Also in function wifi_connectToServer() change ip adress to komputer's ip where serwer aplication is running. After that build project and flash it to STM32F4-Discavery board
-- After a while you'll be connected
-
-## How to use
-- "*" activates system
-- pin is a four-digit code
-- "#" cancels last number from pin
+- open CoIDE,connect the display, keyboard, motion sensor and Wi-Fi module to pins described in "lcd.c", "keypad.c", "md.c" and "wifi.c" files
+- in "wifi.c" file, in line AT+CWJAP_CUR=\"SSID\",\"PASSWORD\" replace SSID and PASSWORD with your WLAN ssid and password. In function wifi_connectToServer() replace the ip address, so that the STM32 can connect to the server aplication. After that build the project and flash it to STM32F4-Discovery board
+- If you did previous steps correctly, the lcd should display the logo after a short while. It means it is connected to your WLAN. 
+- "#" arms the alarm. It is disarmed by default.
+- pin is a four-digit code. To enter it just press any of the numeric keys, the password entering screen will appear.
+- "*" is used to undo key presses.
+- after entering the pin, the microcontroller should connect to your server and verify the pin.
+- If a connected motion detector triggers an interrupt, and a correct pin is not entered within 20 seconds, an email is sent.
 
 ## Future improvements
-- Adding more motion sensors.
+- Allow users to set up WLAN data without recompiling
 
 ## Licence
 - This project can be used under MIT license
